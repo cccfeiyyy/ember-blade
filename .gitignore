@@ -1,0 +1,24 @@
+# ===== Operating system =====
+Thumbs.db
+Desktop.ini
+.DS_Store
+*.lnk
+
+# ===== DSH internal session workspace =====
+.dsh/
+/AI 游戏开发工作流全流程.md
+
+# ===== QA heavy evidence (kept locally; reports are committed) =====
+production/qa/screenshots/
+production/qa/diagnostics/
+production/qa/diagnostics-v2.0.0/
+production/qa/diagnostics-v2.0.1/
+.dev/qa/iteration-shots/
+.dev/qa/selftest-shots/
+.dev/qa/results/
+
+# ===== Local temp / logs / deps =====
+*.log
+*.tmp
+tmp/
+node_modules/

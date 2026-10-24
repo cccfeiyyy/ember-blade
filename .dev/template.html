@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="color-scheme" content="dark">
+<title>余烬之刃 · EMBER BLADE</title>
+<style>/*__CSS__*/</style>
+</head>
+<body>
+<div id="app">
+  <canvas id="game-canvas"></canvas>
+
+  <!-- 电影感后期叠层 -->
+  <div id="vignette"></div>
+  <div id="grain"></div>
+  <div id="slowmo-fx"></div>
+  <div id="hurt-fx"></div>
+  <div id="flash-fx"></div>
+
+  <!-- ================= HUD ================= -->
+  <div id="hud" class="hidden">
+    <div class="hud-tl">
+      <div class="score-block">
+        <span class="hud-label">得分</span>
+        <span id="score">0</span>
+      </div>
+      <div class="timer-block"><span class="hud-label">用时</span><span id="timer">00:00</span></div>
+      <div class="blessing-list" id="blessing-list"></div>
+    </div>
+
+    <div class="hud-tc">
+      <div id="wave-label">第 一 波</div>
+      <div id="wave-sub">剩余敌人 · 0</div>
+      <div class="wave-pips" id="wave-pips"></div>
+    </div>
+
+    <div class="hud-tr">
+      <div id="combo-box" class="combo-box zero">
+        <div class="combo-line"><span id="combo-num">0</span><span class="combo-x">连击</span></div>
+        <div id="combo-mult">×1.0</div>
+      </div>
+      <div id="style-box" class="style-box">
+        <div class="style-top"><span class="style-label-text">风格</span><span id="style-mul">×1.0</span></div>
+        <div class="style-main">
+          <div id="style-rank" class="style-rank rank-d">D</div>
+          <div class="style-bar"><div id="style-fill"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="lock-reticle" class="hidden">
+      <div class="lock-diamond"></div>
+      <div id="lock-name"></div>
+    </div>
+
+    <div class="hud-bl">
+      <div class="bar-head"><span class="hud-label">生命</span><span id="hp-text">100 / 100</span></div>
+      <div class="bar hp"><div id="hp-fill" class="fill"></div><div class="bar-grid"></div></div>
+      <div class="bar stamina"><div id="stamina-fill" class="fill"></div></div>
+      <div class="potion-row" id="potion-row">
+        <div class="potion" data-i="0"><span class="potion-icon">◆</span><span class="potion-count">×1</span></div>
+        <div class="potion" data-i="1"><span class="potion-icon">◆</span><span class="potion-count">×1</span></div>
+        <div class="potion" data-i="2"><span class="potion-icon">◆</span><span class="potion-count">×1</span></div>
+        <div class="potion-key">R · 饮烬</div>
+      </div>
+      <div id="low-hp-warn" class="hidden">生命垂危</div>
+    </div>
+
+    <div class="hud-br">
+      <div class="mom-head"><span class="hud-label">势</span><span id="mom-text">0</span></div>
+      <div class="bar momentum"><div id="momentum-fill" class="fill"></div></div>
+      <div id="ult-prompt" class="ult-prompt off">F · 烬 灭</div>
+      <div class="skill-row">
+        <div class="skill" id="skill-parry"><span class="key">Q</span><span class="name">格挡 · 弹反</span><i class="cd"></i></div>
+        <div class="skill" id="skill-dodge"><span class="key">SPACE</span><span class="name">闪避</span></div>
+        <div class="skill" id="skill-wave"><span class="key">E</span><span class="name">剑气</span><i class="cd"></i></div>
+      </div>
+    </div>
+
+    <div id="boss-bar" class="hidden">
+      <div class="boss-title"><span id="boss-name">无面守望者</span><span id="boss-phase">深渊守望者</span></div>
+      <div class="bar boss"><div id="boss-hp-fill" class="fill"></div><div class="bar-grid"></div></div>
+    </div>
+
+    <div id="center-msg-layer"></div>
+    <div id="dmg-layer"></div>
+
+    <div id="hint" class="hidden">
+      <div class="hint-inner">点击画面锁定鼠标视角</div>
+    </div>
+
+    <div class="hud-corner tl"></div><div class="hud-corner tr"></div>
+    <div class="hud-corner bl"></div><div class="hud-corner br"></div>
+  </div>
+
+  <!-- ================= 标题页 ================= -->
+  <div id="title-screen" class="overlay">
+    <div class="title-scan"></div>
+    <div class="title-content">
+      <div class="title-kicker">A FIFTY-YUAN TOKEN EXPERIMENT · V2.0.2</div>
+      <h1 class="game-title">
+        <span class="title-cn">余 烬 之 刃</span>
+        <span class="title-en">E M B E R &nbsp; B L A D E</span>
+      </h1>
+      <div class="title-rule"><i></i><span>◆</span><i></i></div>
+      <p class="title-tagline">
+        永夜的回响竞技场中，你是最后一缕未熄的剑魂。<br>
+        斩尽侵蚀者，击破「无面守望者」——或坠入更深层的回响。
+      </p>
+
+      <div id="best-record" class="title-best"></div>
+
+      <div class="title-controls">
+        <div class="ctrl-col">
+          <div class="ctrl"><span class="keycap">W A S D</span><span>移动</span></div>
+          <div class="ctrl"><span class="keycap">鼠标</span><span>视角</span></div>
+          <div class="ctrl"><span class="keycap">左键</span><span>轻斩 · 三连击</span></div>
+          <div class="ctrl"><span class="keycap">右键</span><span>重斩 · 破防</span></div>
+          <div class="ctrl"><span class="keycap">SPACE</span><span>闪避 · 无敌帧</span></div>
+          <div class="ctrl"><span class="keycap">Q</span><span>格挡 · 精准弹反</span></div>
+        </div>
+        <div class="ctrl-col">
+          <div class="ctrl"><span class="keycap">E</span><span>剑气 · 远程</span></div>
+          <div class="ctrl"><span class="keycap">F</span><span>烬灭 · 势满释放</span></div>
+          <div class="ctrl"><span class="keycap">R</span><span>饮烬 · 回复</span></div>
+          <div class="ctrl"><span class="keycap">TAB</span><span>锁定敌人</span></div>
+          <div class="ctrl"><span class="keycap">ESC</span><span>暂停</span></div>
+          <div class="ctrl"><span class="keycap">1 / 2 / 3</span><span>选择回响</span></div>
+        </div>
+      </div>
+
+      <button id="start-btn" class="btn-primary">
+        <span class="btn-glow"></span>
+        <span class="btn-text">开 始 战 斗</span>
+      </button>
+      <div class="title-tips">回响构筑 · 精准弹反 · 风格评级 · 无尽回响 · 建议佩戴耳机</div>
+      <div class="title-footer">
+        <span>V2.0.2 · 50 元 TOKEN 预算 · 全流程自主决策</span>
+        <span class="dot">·</span>
+        <span>单文件离线可玩</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= 暂停页 ================= -->
+  <div id="pause-screen" class="overlay hidden">
+    <div class="menu-panel">
+      <div class="menu-kicker">PAUSED</div>
+      <h2 class="menu-title">暂 停</h2>
+      <div class="slider-row">
+        <label for="sens-slider">鼠标灵敏度 <b id="sens-val">1.0</b></label>
+        <input id="sens-slider" type="range" min="0.3" max="2.0" step="0.1" value="1.0">
+      </div>
+      <div class="slider-row">
+        <label for="vol-slider">音量 <b id="vol-val">70</b></label>
+        <input id="vol-slider" type="range" min="0" max="100" step="1" value="70">
+      </div>
+      <div class="setting-row">
+        <label class="check-row"><input id="invert-y" type="checkbox"><span>反转纵向视角</span></label>
+        <label class="select-row"><span>画质</span>
+          <select id="quality-select">
+            <option value="auto">自动</option>
+            <option value="high">高</option>
+            <option value="low">低</option>
+          </select>
+        </label>
+      </div>
+      <div class="menu-buttons">
+        <button id="resume-btn" class="btn-primary small">继 续</button>
+        <button id="restart-btn" class="btn-ghost">重新开始</button>
+        <button id="quit-btn" class="btn-ghost">返回标题</button>
+      </div>
+      <div class="menu-tip">按 ESC 继续游戏</div>
+    </div>
+  </div>
+
+  <!-- ================= 结算页 ================= -->
+  <div id="end-screen" class="overlay hidden">
+    <div class="menu-panel end-panel">
+      <div id="end-kicker" class="menu-kicker">THE CYCLE ENDS</div>
+      <h2 id="end-title" class="menu-title">逃 出 生 天</h2>
+      <div id="end-rank" class="rank-badge">S</div>
+      <div class="stats-grid">
+        <div class="stat"><span class="stat-label">得分</span><span id="stat-score" class="stat-val">0</span></div>
+        <div class="stat"><span class="stat-label">用时</span><span id="stat-time" class="stat-val">00:00</span></div>
+        <div class="stat"><span class="stat-label">击破</span><span id="stat-kills" class="stat-val">0</span></div>
+        <div class="stat"><span class="stat-label">最高连击</span><span id="stat-combo" class="stat-val">0</span></div>
+      </div>
+      <div id="end-record" class="end-record"></div>
+      <div class="menu-buttons">
+        <button id="again-btn" class="btn-primary small">再 战 一 次</button>
+        <button id="endless-btn" class="btn-primary small hidden">无 尽 回 响</button>
+        <button id="end-quit-btn" class="btn-ghost">返回标题</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= 回响祝福选择 ================= -->
+  <div id="blessing-screen" class="overlay hidden">
+    <div class="blessing-panel">
+      <div class="blessing-kicker">ECHOES OF THE BLADE</div>
+      <h2 class="blessing-title">选 择 回 响</h2>
+      <div id="blessing-note" class="blessing-note">从三道回响中选择其一</div>
+      <div id="blessing-cards" class="blessing-cards"></div>
+      <div class="blessing-tip">点击卡牌 或 按 <b>1</b> / <b>2</b> / <b>3</b> 选择</div>
+    </div>
+  </div>
+
+  <!-- ================= 加载 / 错误 ================= -->
+  <div id="loading-screen">
+    <div class="loading-mark">◆</div>
+    <div class="loading-title">余 烬 之 刃</div>
+    <div class="loading-text" id="loading-text">正在点燃余烬…</div>
+    <div class="loading-bar"><div id="loading-fill"></div></div>
+  </div>
+  <div id="error-screen" class="hidden">
+    <div class="menu-panel">
+      <h2 class="menu-title">无法点火</h2>
+      <p id="error-text" class="error-text">你的浏览器未能启用 WebGL。</p>
+      <p class="error-hint">请使用最新版 Chrome / Edge 打开本文件，并确保硬件加速已开启。</p>
+    </div>
+  </div>
+</div>
+
+<script>/*__THREE__*/</script>
+<script>window.G = { util:{}, world:{}, audio:null, game:{}, cfg:{} };</script>
+<script>/*__UTIL__*/</script>
+<script>/*__AUDIO__*/</script>
+<script>/*__WORLD__*/</script>
+<script>/*__BLESSINGS__*/</script>
+<script>/*__GAME__*/</script>
+<script>/*__HUD__*/</script>
+<script>/*__COMBAT__*/</script>
+</body>
+</html>
