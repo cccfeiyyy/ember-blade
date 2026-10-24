@@ -26,3 +26,6 @@ node_modules/
 # ===== Local dev temp scripts =====
 .dev/eval-*.js
 .dev/tools/
+
+# ===== Local live smoke artifacts =====
+.dev/live-*/
