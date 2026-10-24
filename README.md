@@ -3,7 +3,8 @@
 一款可在浏览器直接游玩的**第三人称 3D 剑斗动作 Roguelite**。单文件、离线可玩、无需安装任何环境。
 
 > 🎮 **在线游玩**：<https://cccfeiyyy.github.io/ember-blade/>  
-> 📦 **项目仓库**：<https://github.com/cccfeiyyy/ember-blade>
+> 📦 **项目仓库**：<https://github.com/cccfeiyyy/ember-blade>  
+> ⬇️ **单文件下载**：<https://github.com/cccfeiyyy/ember-blade/releases/latest>
 
 ## 开始游玩
 
