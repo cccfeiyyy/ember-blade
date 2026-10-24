@@ -22,3 +22,7 @@ production/qa/diagnostics-v2.0.1/
 *.tmp
 tmp/
 node_modules/
+
+# ===== Local dev temp scripts =====
+.dev/eval-*.js
+.dev/tools/
